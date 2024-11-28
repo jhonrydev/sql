@@ -1,0 +1,64 @@
+create
+or replace PACKAGE VDIR_PACK_ENCUESTAS AS
+--FUNCION PARA TRAER UNA ENCUESTA DE SARLAF-------------------------------
+FUNCTION VDIR_FN_GET_ENCUESTA_SARLAF (
+  p_codigo_afiliacion IN VDIR_AFILIACION.COD_AFILIACION % TYPE,
+  p_codigo_persona IN VDIR_PERSONA.COD_PERSONA % TYPE
+) RETURN CLOB;
+
+--FUNCION PARA TRAER UNA LISTA DE MONEDAS
+FUNCTION VDIR_FN_GET_LIST_MONEDA RETURN VARCHAR2;
+
+--FUNCION PARA TRAER UNA LISTA DE PARENTESCOS
+FUNCTION VDIR_FN_GET_LIST_PARENTESCO RETURN VARCHAR2;
+
+--PROCEDIMIENTO PARA GUARDAR LA ENCUESTA
+PROCEDURE VDIR_FN_GUARDAR_ENCUESTA (
+  p_codigo_encuesta IN VDIR_ENCUESTA.COD_ENCUESTA % TYPE,
+  p_codigo_pregunta IN VDIR_PREGUNTA.COD_PREGUNTA % TYPE,
+  p_codigo_respuesta IN VDIR_RESPUESTA.COD_RESPUESTA % TYPE,
+  p_cod_afiliacion IN VDIR_AFILIACION.COD_AFILIACION % TYPE,
+  p_valor_respuesta IN VDIR_RESPUESTAS_MARCADAS.VALOR_RESPUESTA % TYPE,
+  p_codigo_persona IN VDIR_PERSONA.COD_PERSONA % TYPE,
+  p_respuesta OUT VARCHAR2
+);
+
+--FUNCION PARA TRAER LA ENCUESTA SARLAF YA DILIGENCIADA-------------------------------
+FUNCTION VDIR_FN_GET_DATOS_ENCT (
+  p_codigo_afiliacion IN VDIR_AFILIACION.COD_AFILIACION % TYPE,
+  p_codigo_persona IN VDIR_PERSONA.COD_PERSONA % TYPE
+) RETURN CLOB;
+
+--FUNCION PARA TRAER UNA ENCUESTA DE SALUD-------------------------------
+FUNCTION VDIR_FN_GET_ENCUESTA_DE_SALUD (
+  p_edad IN NUMBER,
+  p_sexo IN NUMBER,
+  p_codigo_afiliacion IN VDIR_AFILIACION.COD_AFILIACION % TYPE,
+  p_codigo_persona IN VDIR_PERSONA.COD_PERSONA % TYPE
+) RETURN CLOB;
+
+--FUNCION PARA TRAER LA ENCUESTA DE SALUD YA DILIGENCIADA-------------------------------
+FUNCTION VDIR_FN_GET_DATOS_ENCT_SALUD (
+  p_edad IN NUMBER,
+  p_sexo IN NUMBER,
+  p_codigo_afiliacion IN VDIR_AFILIACION.COD_AFILIACION % TYPE,
+  p_codigo_persona IN VDIR_PERSONA.COD_PERSONA % TYPE
+) RETURN CLOB;
+
+-- ---------------------------------------------------------------------
+-- fnGetValidaEncuesta
+-- ---------------------------------------------------------------------
+FUNCTION fnGetValidaEncuesta (
+  inu_codAfiliacion IN VDIR_ENCUESTA_PERSONA.COD_AFILIACION % TYPE,
+  inu_codPersona IN VDIR_ENCUESTA_PERSONA.COD_PERSONA % TYPE,
+  inu_codEncuesta IN VDIR_ENCUESTA_PERSONA.COD_ENCUESTA % TYPE
+) RETURN NUMBER;
+
+-- ---------------------------------------------------------------------
+-- VDIR_FN_VALIDA_ENCUESTA_SALUD
+-- ---------------------------------------------------------------------
+FUNCTION VDIR_FN_VALIDA_ENCUESTA_SALUD (
+  p_codigo_afiliacion IN VDIR_AFILIACION.COD_AFILIACION % TYPE
+) RETURN sys_refcursor;
+
+END VDIR_PACK_ENCUESTAS;

@@ -1,0 +1,25 @@
+SELECT DISTINCT
+    carti,
+    cartilla_deno,
+    espe,
+    especialidades_exten_deno,
+    cod_ciudad,
+    sub_especialidades_exten_deno,
+    codsubespecialidad,
+    codafinidad,
+    Nombre_Afinidad,
+    email_citas,
+    direccion_lugar_atencion,
+    prestad_lugares_tele1,
+    ext1,
+    PRESTADOR,
+    ciudad,
+    prestad,
+    prestad_lugares_celu1,
+    prestad_lugares_tele2,
+    prestad_lugares_celu2,
+    ext2,
+    telcelu_wp,
+    tele_nacional
+FROM
+    dbo.Visor_directorios_3

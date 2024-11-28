@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.2.0.final using JasperReports Library version 6.2.0  -->
+<!-- 2016-07-05T08:40:47 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="CertificadoAfiliacion" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="30" rightMargin="30" topMargin="30" bottomMargin="30" uuid="df6c276c-94c5-4757-a4f6-f2e055e8f2ec">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="247"/>
+	<style name="table">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="DatasetCabecera" uuid="cf987f4a-4d8e-457a-901c-59c6e13495df">
+		<parameter name="ID" class="java.lang.String">
+			<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+		</parameter>
+		<parameter name="ANIO" class="java.lang.String">
+			<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+		</parameter>
+		<queryString>
+			<![CDATA[SELECT DISTINCT QUCDES
+FROM SALUDMP.XXMPUSRFCB
+WHERE QUCNIT = CAST($P{ID} AS BIGINT)  and
+QUCAÑO = CAST($P{ANIO} AS BIGINT)]]>
+		</queryString>
+		<field name="QUCDES" class="java.lang.String"/>
+	</subDataset>
+	<subDataset name="DatasetDetalle" uuid="16a29878-d195-42fe-af7e-1e3c3fd1c07b">
+		<parameter name="ID" class="java.lang.String">
+			<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+		</parameter>
+		<parameter name="ANIO" class="java.lang.String">
+			<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+		</parameter>
+		<queryString>
+			<![CDATA[SELECT QUSSOC,
+QUSNCR,
+QUSDES,
+QUSFEI,
+QUSVLC,
+QCSPTF,
+QTODES
+FROM SALUDMP.XXMPUS U, SALUDMP.XXMPCS C, SALUDMP.XXMPTO O
+WHERE C.QCSNIT =CAST($P{ID} AS BIGINT)
+AND C.QCSIN3 = ' '
+AND U.QUSIN3 = ' '
+AND U.QUSSOC = C.QCSSOC
+AND U.QUSNCR = C.QCSNCR
+AND C.QCSTCT = O.QTOTCT]]>
+		</queryString>
+		<field name="QUSSOC" class="java.lang.String"/>
+		<field name="QUSDES" class="java.lang.String"/>
+		<field name="QUSNCR" class="java.math.BigDecimal"/>
+		<field name="QCSPTF" class="java.lang.String"/>
+		<field name="QTODES" class="java.lang.String"/>
+		<field name="QUSFEI" class="java.math.BigDecimal"/>
+		<field name="QUSVLC" class="java.math.BigDecimal"/>
+	</subDataset>
+	<parameter name="ID" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="ANIO" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="NOMBRE" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="img_logo" class="java.lang.Object" isForPrompting="false"/>
+	<parameter name="firma" class="java.lang.Object" isForPrompting="false"/>
+	<queryString>
+		<![CDATA[SELECT  MAX(QUCVLR) SUMA_TOTAL,
+        SUM(QUCIVA) SUMA_TOTAL_IVA
+FROM    SALUDMP.XXMPUSRFCB
+WHERE   QUCNIT = CAST($P{ID} AS BIGINT)  AND
+        QUCAÑO = CAST($P{ANIO} AS BIGINT)]]>
+	</queryString>
+	<field name="SUMA_TOTAL" class="java.math.BigDecimal"/>
+	<field name="SUMA_TOTAL_IVA" class="java.math.BigDecimal"/>
+	<variable name="ID" class="java.lang.String">
+		<variableExpression><![CDATA[$P{ID}]]></variableExpression>
+	</variable>
+	<variable name="ANIO" class="java.lang.String">
+		<variableExpression><![CDATA[$P{ANIO}]]></variableExpression>
+	</variable>
+	<variable name="GET_MONTH" class="java.lang.String">
+		<variableExpression><![CDATA[Calendar.getInstance().get(Calendar.MONTH) == 0
+  ? "Enero"
+  : Calendar.getInstance().get(Calendar.MONTH) == 1
+    ? "Febrero"
+    : Calendar.getInstance().get(Calendar.MONTH) == 2
+      ? "Marzo"
+       : Calendar.getInstance().get(Calendar.MONTH) == 3
+        ? "Abril"
+         : Calendar.getInstance().get(Calendar.MONTH) == 4
+          ? "Mayo"
+           : Calendar.getInstance().get(Calendar.MONTH) == 5
+            ? "Junio"
+             : Calendar.getInstance().get(Calendar.MONTH) == 6
+              ? "Julio"
+               : Calendar.getInstance().get(Calendar.MONTH) == 7
+                ? "Agosto"
+                 : Calendar.getInstance().get(Calendar.MONTH) == 8
+                  ? "Septiembre"
+                   : Calendar.getInstance().get(Calendar.MONTH) == 9
+                    ? "Octubre"
+                     : Calendar.getInstance().get(Calendar.MONTH) == 10
+                      ? "Noviembre"
+                       : Calendar.getInstance().get(Calendar.MONTH) == 11
+                        ? "Diciembre"
+                         : "Error"]]></variableExpression>
+	</variable>
+	<variable name="GET_YEAR" class="java.lang.String">
+		<variableExpression><![CDATA[Calendar.getInstance().get(Calendar.YEAR) == 2012
+  ? "Dos mil doce"
+  : Calendar.getInstance().get(Calendar.YEAR) == 2013
+    ? "Dos mil trece"
+    : Calendar.getInstance().get(Calendar.YEAR) == 2014
+      ? "Dos mil catorce"
+       : Calendar.getInstance().get(Calendar.YEAR) == 2015
+        ? "Dos mil quince"
+         : Calendar.getInstance().get(Calendar.YEAR) == 2016
+          ? "Dos mil dieciséis"
+           : Calendar.getInstance().get(Calendar.MONTH) == 2017
+            ? "Dos mil diecisiete"
+             : Calendar.getInstance().get(Calendar.MONTH) == 2018
+              ? "Dos mil dieciocho"
+               : Calendar.getInstance().get(Calendar.MONTH) == 2019
+                ? "Dos mil diecinueve"
+                 : Calendar.getInstance().get(Calendar.MONTH) == 2020
+                  ? "Dos mil veinte"
+                   : Calendar.getInstance().get(Calendar.MONTH) == 2021
+                    ? "Dos mil veintiuno"
+                     : Calendar.getInstance().get(Calendar.MONTH) == 2022
+                      ? "Dos mil veintidos"
+                       : Calendar.getInstance().get(Calendar.MONTH) == 2023
+                        ? "Dos mil veintitres"
+                         : Calendar.getInstance().get(Calendar.MONTH) == 2024
+                          ? "Dos mil veinticuatro"
+                           : Calendar.getInstance().get(Calendar.MONTH) == 2025
+                            ? "Dos mil veinticinco"
+                             : Calendar.getInstance().get(Calendar.MONTH) == 2026
+                              ? "Dos mil veintiseis"
+                               : Calendar.getInstance().get(Calendar.MONTH) == 2027
+                                ? "Dos mil veintisiete"
+                                 : Calendar.getInstance().get(Calendar.MONTH) == 2028
+                                  ? "Dos mil veintiocho"
+                                   : Calendar.getInstance().get(Calendar.MONTH) == 2029
+                                    ? "Dos mil veintinueve"
+                                     : Calendar.getInstance().get(Calendar.MONTH) == 2030
+                                      ? "Dos mil treinta"
+                                       : "Error"]]></variableExpression>
+	</variable>
+	<variable name="SUM_TOTAL_PAGOS" class="java.math.BigDecimal">
+		<variableExpression><![CDATA[$F{SUMA_TOTAL}.add(new BigDecimal($V{VALOR_IVA}))]]></variableExpression>
+	</variable>
+	<variable name="VALOR_IVA" class="java.lang.Integer">
+		<variableExpression><![CDATA[Integer.parseInt(($F{SUMA_TOTAL_IVA}.toString().replace(".", ",").split(",")[1])) >= 5 ? (Integer.parseInt(($F{SUMA_TOTAL_IVA}.toString().replace(".", ",").split(",")[0])) + 1) : (Integer.parseInt(($F{SUMA_TOTAL_IVA}.toString().replace(".", ",").split(",")[0])))]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="72" splitType="Stretch">
+			<image>
+				<reportElement x="0" y="0" width="270" height="70" uuid="f9fec157-5b30-4f69-b4c9-16cbf5530a7a"/>
+				<imageExpression><![CDATA[$P{img_logo}]]></imageExpression>
+			</image>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="149" splitType="Stretch">
+			<staticText>
+				<reportElement x="115" y="60" width="292" height="20" uuid="b709be95-8c29-49e1-bda2-a2b1fa20f675"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[C O O M E V A   M E D I C I N A   P R E P A G A D A   S.A.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="219" y="80" width="100" height="20" uuid="bc0107da-447d-4e85-a909-a58baf36c9fa"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="false"/>
+				</textElement>
+				<text><![CDATA[NIT. 805.009.741-0]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="219" y="100" width="100" height="20" uuid="929be5fc-aaf7-4628-923d-fd4ede4867c2"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[C E R T I F I C A]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="100" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="33" width="535" height="48" uuid="c897693d-aa72-4622-83ac-dbae41a28875"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Que el Señor(a) " + $P{NOMBRE} + " con cédula de ciudadanía Nro. " + $P{ID} + " se encuentra afiliado (a) a nuestro servicio  de  Salud  MEDICINA PREPAGADA con los siguientes Contratos y Beneficiarios Activos:"]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="61" splitType="Stretch">
+			<componentElement>
+				<reportElement key="table" style="table" mode="Opaque" x="0" y="0" width="535" height="36" forecolor="#FFFFFF" backcolor="#008852" uuid="fd26dcbb-55b1-4d61-9b9d-5a4346281a7b"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="DatasetDetalle" uuid="a35b93d7-206f-48df-bf09-87a64c1c0872">
+						<datasetParameter name="ID">
+							<datasetParameterExpression><![CDATA[$P{ID}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="ANIO">
+							<datasetParameterExpression><![CDATA[$P{ANIO}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:column width="149" uuid="a54fc87f-0c30-4432-81bd-8f6509f80223">
+						<jr:tableHeader style="table_TH" height="26" rowSpan="1">
+							<staticText>
+								<reportElement mode="Opaque" x="0" y="0" width="149" height="26" forecolor="#333333" backcolor="#FFFFFF" uuid="2a96211d-8167-4127-a696-03a88804d183"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font size="9" isBold="true"/>
+								</textElement>
+								<text><![CDATA[BENEFICIARIO]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="12" rowSpan="1">
+							<textField>
+								<reportElement x="0" y="0" width="149" height="12" uuid="53b6142f-295e-4452-a595-5a78747d967e"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font size="7"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{QUSDES}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="70" uuid="8de88315-0e8b-452e-97ad-132de092b95e">
+						<jr:tableHeader style="table_TH" height="26" rowSpan="1">
+							<staticText>
+								<reportElement mode="Opaque" x="0" y="0" width="70" height="26" forecolor="#000000" backcolor="#FFFFFF" uuid="0d03e87b-ec65-4aca-a786-cacc21bfc746"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font size="9" isBold="true"/>
+								</textElement>
+								<text><![CDATA[PLAN]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="12" rowSpan="1">
+							<textField>
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="70" height="12" uuid="d10cf4c5-510b-4892-9a50-460e54ccd2d2"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font size="7"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{QTODES}.substring( 0, 9 )]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="69" uuid="ff7f5ac8-54f0-4b4a-aad1-8cca0435f07f">
+						<jr:tableHeader style="table_TH" height="26" rowSpan="1">
+							<staticText>
+								<reportElement mode="Opaque" x="0" y="0" width="69" height="26" forecolor="#000000" backcolor="#FFFFFF" uuid="1758c28f-c0ad-4374-8f09-f70a8dc5a55a"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font size="9" isBold="true"/>
+								</textElement>
+								<text><![CDATA[PROGRAMA]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="12" rowSpan="1">
+							<textField>
+								<reportElement x="0" y="0" width="69" height="12" uuid="f30b72df-d3f6-4d95-9791-d326da13d386"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font size="7"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{QCSPTF}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90" uuid="38b6193a-9722-47da-b83d-d9ed5cfc4f80">
+						<jr:tableHeader style="table_TH" height="26" rowSpan="1">
+							<staticText>
+								<reportElement mode="Opaque" x="0" y="0" width="90" height="26" forecolor="#000000" backcolor="#FFFFFF" uuid="c6e50d6c-64ce-4872-ba3c-2376059941c4"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font size="9" isBold="true"/>
+								</textElement>
+								<text><![CDATA[CONTRATO]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="12" rowSpan="1">
+							<textField>
+								<reportElement x="0" y="0" width="90" height="12" uuid="e58169e0-63ea-4b89-8471-89bf5f69a220"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font size="7"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{QUSSOC} + "  " + $F{QUSNCR}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="78" uuid="e316eb93-fab9-4d4b-af7b-44b185a0ea75">
+						<jr:tableHeader style="table_TH" height="26" rowSpan="1">
+							<staticText>
+								<reportElement mode="Opaque" x="0" y="0" width="78" height="26" forecolor="#000000" backcolor="#FFFFFF" uuid="0e000830-e0fd-4190-8c3e-efe153ce1244"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font size="9" isBold="true"/>
+								</textElement>
+								<text><![CDATA[FECHA INICIO]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="12" rowSpan="1">
+							<textField pattern="">
+								<reportElement x="0" y="0" width="78" height="12" uuid="392c5819-dcba-4433-8d3d-5cc35f82c051"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font size="7"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{QUSFEI}.toString().substring(0, 4) + "/" + $F{QUSFEI}.toString().substring(4, 6) + "/" + $F{QUSFEI}.toString().substring(6, 8)]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="76" uuid="0b52be45-ddad-4596-b0ef-a587a73d2b52">
+						<jr:tableHeader style="table_TH" height="26" rowSpan="1">
+							<staticText>
+								<reportElement mode="Opaque" x="0" y="0" width="76" height="26" forecolor="#000000" backcolor="#FFFFFF" uuid="1da3b0ad-301b-4fc3-abde-4276b0af0cc7"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font size="9" isBold="true"/>
+								</textElement>
+								<text><![CDATA[CUOTA MES]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="table_TD" height="12" rowSpan="1">
+							<textField pattern="¤ #,##0.00">
+								<reportElement x="0" y="0" width="76" height="12" uuid="273aa23b-a69b-481a-b7a5-e80ed9240401"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font size="7"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{QUSVLC}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+		</band>
+	</detail>
+	<summary>
+		<band height="293" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="168" width="212" height="20" uuid="79bcea9c-1108-4aa9-b568-54f9d3d0586e"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[DIRECCION NACIONAL OPERATIVA DE SALUD]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="182" width="212" height="20" uuid="bf0bd0c9-eb12-4970-a8ee-e555ea5b93c6"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[COOMEVA Medicina Prepagada.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="196" width="372" height="20" uuid="d1fef5d7-920c-4daf-9432-920315575e17"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[COOMEVA MEDICINA PREPAGADA, Autorizada por resolución]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="209" width="301" height="20" uuid="25a0c02c-09bf-410b-a8af-0d16a6fc37e6"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[Nro. 1667 de diciembre 12 de 1.997, de la Superintendencia Nal de Salud.]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="0" y="31" width="535" height="26" uuid="7f44a991-9d92-465f-ba2c-075c48e2fc86"/>
+				<textElement>
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Se expide este certificado a los " + Calendar.getInstance().get(Calendar.DATE) + " días del mes de " + $V{GET_MONTH} + " de " + $V{GET_YEAR} + " ("+Calendar.getInstance().get(Calendar.YEAR)+"). "]]></textFieldExpression>
+			</textField>
+			<image>
+				<reportElement x="0" y="100" width="115" height="68" uuid="0f086b07-878f-4d82-b3e0-3917b44de2b9"/>
+				<imageExpression><![CDATA[$P{firma}]]></imageExpression>
+			</image>
+		</band>
+	</summary>
+</jasperReport>

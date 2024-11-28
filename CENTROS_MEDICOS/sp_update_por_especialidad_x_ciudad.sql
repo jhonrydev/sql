@@ -1,0 +1,39 @@
+CREATE OR REPLACE PROCEDURE POR_CENTROS_MEDICOS_UPDATE(
+   ID2 INTEGER,
+   NAME2 IN VARCHAR2,
+   CITY2 IN VARCHAR2,
+   ADDRESS2 IN VARCHAR2,
+   LAT2 IN VARCHAR2,
+   LON2 IN VARCHAR2,
+   HOUR_INI2 IN VARCHAR2,
+   HOUR_FIN2 IN VARCHAR2,
+   PHONE2 IN VARCHAR2,
+   STATUS2 IN INTEGER,
+   ADDRESS_2 IN VARCHAR2
+    ) 
+      AS
+        HOUR_FIN VARCHAR2;
+      BEGIN
+          IF HOUR_FIN2 IS NULL THEN
+            HOUR_FIN:=NULL;
+          ELSE
+            HOUR_FIN:=HOUR_FIN2;
+          END IF;
+          
+          UPDATE POR_CENTROS_MEDICOS SET 
+            NAME=NAME2,
+            CITY=CITY2,
+            ADDRESS=ADDRESS2,
+            LAT=LAT2,
+            LON=LON2,
+            HOUR_INI=HOUR_INI2,
+            HOUR_FIN2=HOUR_FIN2,
+            PHONE=PHONE2,
+            IMAGE=IMAGE2,
+            STATUS=STATUS2,
+            ADDRESS_2=ADDRESS_2
+            WHERE ID=ID2;
+          
+          COMMIT;
+          
+      END POR_CENTROS_MEDICOS_UPDATE;
