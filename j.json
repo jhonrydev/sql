@@ -1,0 +1,63 @@
+{
+    "tipo_solicitud": 1,
+    "cuenta": 2,
+    "modelo_negocio": [
+        {
+            "subcuenta": "FSMP",
+            "linea_negocio": 1,
+            "programa": [
+                "AESF"
+            ]
+        },
+        {
+            "subcuenta": "FSAO",
+            "linea_negocio": 2,
+            "programa": []
+        }
+    ],
+    "cuenta_asociado": 1,
+    "modelo_negocio_asociado": [
+        {
+            "subcuenta": "ASMP",
+            "linea_negocio": 1,
+            "programa": [
+                "AESF"
+            ]
+        },
+        {
+            "subcuenta": "ASAO",
+            "linea_negocio": 2,
+            "programa": []
+        }
+    ],
+    "cuota_inscripcion": 0,
+    "contratante": {
+        "tipo_documento": "CC",
+        "numero_documento": "1130658316",
+        "nombre1": "JHON",
+        "nombre2": "IBER",
+        "apellido1": "MEDINA",
+        "apellido2": "BUENO",
+        "contratante_usuario": false,
+        "correo_electronico": "SINCORREO@COOMEVA.COM",
+        "correo_electronico_2": "",
+        "telefono_celular": "1111111111",
+        "telefono_fijo": ""
+    },
+    "beneficiarios": [
+        {
+            "parentesco": "2",
+            "sexo": "M",
+            "fecha_nacimiento": "2020-07-17",
+            "edad": "4",
+            "nombre1": "Juan",
+            "nombre2": "",
+            "apellido1": "diaz",
+            "apellido2": "",
+            "tarifa": [
+                "FAESFQ"
+            ],
+            "campania": ""
+        }
+    ]
+}

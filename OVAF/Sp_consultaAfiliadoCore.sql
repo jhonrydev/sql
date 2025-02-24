@@ -1,3 +1,6 @@
+USE [PreCoreMP]
+GO
+/****** Object:  StoredProcedure [saludmp].[Sp_consultaAfiliadoCore]    Script Date: 30/01/2025 3:09:35 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -11,29 +14,35 @@ AS
 BEGIN
 /*QUERY PARA CONTRATOS DE RESPONSABLE PAGADOR CON SERVICIO*/
 SELECT 
---RTRIM((CASE WHEN CUEN.CUENTA_TIPO = 'C' THEN CUEN.RAZON ELSE '' END)) AS nombreColectivo,
-RTRIM(CONCAT(a.NOMBRE, ' ', ISNULL(a.NOMBRE2, ''), ' ', a.APE, ' ', ISNULL(a.APE2, ''))) AS nombreAfiliado,
+RTRIM(CONCAT(TRIM(a.NOMBRE), ' ', ISNULL(TRIM(a.NOMBRE2), ''), ' ', TRIM(a.APE), ' ', ISNULL(TRIM(a.APE2), ''))) AS nombreAfiliado,
 RTRIM(a.DOCU_NRO) AS numIdentificacion,
 RTRIM(a.docu_tipo) AS tipoIdentificacion,
---RTRIM(AFICR.ASESOR) AS codigoAsesor,
---RTRIM(CASE WHEN PLAG.PLAN_GRUPO = 'TRD' THEN '70' ELSE '100' END) AS cobertura,
---RTRIM(SUBT.DENO) AS tipoPlan,
 RTRIM(PLA.plan_codi) AS programa,
 RTRIM(PLA.DENO) AS nomPrograma,
 RTRIM(PLA.carti) AS numCartilla ,
---RTRIM(AFICR.PLAN_CODI) AS codigo_programa,
---RTRIM(CASE WHEN FRAN.PAGO_COPA = 'P' THEN 'DIRE' WHEN FRAN.PAGO_COPA = 'C' THEN 'NOMI' ELSE '' END) AS franquicia,
---RTRIM(a.CONTRA) AS codigoContrato,
---RTRIM(a.INTE) AS numeroUsuario,
---RTRIM(AFICR.NRO_EMISION) AS numeroConsecutivo,
 CONVERT(varchar, a.NACI_FECHA, 112) AS fechaNacimiento,
---CONVERT(NVARCHAR(MAX), a.antig_FECHA, 112) AS fechaInicio,
---RTRIM(LTRIM(AFICR.CREDEN)) AS numeroCredencial,
 RTRIM(CASE WHEN HISTO.paren='T' AND HISTO.paren_real = 'T' THEN 'Titular' ELSE 'Beneficiario' END) AS parentesco,
 F.loca AS ciudad, G.provin AS departamento,
---RTRIM(CASE WHEN PLA.plan_grupo IN ('ORO', 'OPL','PJV','ASO') THEN '1' ELSE '0' END) AS asist_internal
-RTRIM(AFICR.linea_negocio) AS lineaNegocio, RTRIM(PLA.plan_grupo) AS planGrupo 
-from afiliados A (NOLOCK)
+RTRIM(AFICR.linea_negocio) AS lineaNegocio, RTRIM(PLA.plan_grupo) AS planGrupo,
+(CASE 
+ WHEN(SELECT TOP 1 TELE FROM REGISTRO_UNICO_TELEFONOS WHERE CODIGO_UNICO_PERSONA=A.CODIGO_UNICO_PERSONA AND TIPO_TELE='F' ORDER BY MODI_FECHA DESC) IS NOT NULL THEN(SELECT TOP 1 TELE FROM REGISTRO_UNICO_TELEFONOS WHERE CODIGO_UNICO_PERSONA=A.CODIGO_UNICO_PERSONA AND TIPO_TELE='F' ORDER BY MODI_FECHA DESC) 
+ WHEN(SELECT TOP 1 TELE FROM REGISTRO_UNICO_TELEFONOS WHERE CODIGO_UNICO_PERSONA=A.CODIGO_UNICO_PERSONA AND TIPO_TELE='P' ORDER BY MODI_FECHA DESC) IS NOT NULL THEN(SELECT TOP 1 TELE FROM REGISTRO_UNICO_TELEFONOS WHERE CODIGO_UNICO_PERSONA=A.CODIGO_UNICO_PERSONA AND TIPO_TELE='P' ORDER BY MODI_FECHA DESC) ELSE '' END) AS telefono_f, 
+ (SELECT TOP(1) RUT.tele
+ FROM [dbo].[REGISTRO_UNICO_TELEFONOS] RUT 
+ WHERE RUT.codigo_unico_persona = A.codigo_unico_persona 
+ AND RUT.tipo_tele = 'C' 
+ AND (RUT.baja_fecha is null or CURRENT_TIMESTAMP <= RUT.baja_fecha) 
+ and CURRENT_TIMESTAMP >= RUT.vigencia
+ ORDER BY vigencia DESC) telefono_c,
+  (SELECT TOP(1) RUE.email
+ FROM [dbo].[REGISTRO_UNICO_EMAILS] RUE 
+ WHERE RUE.codigo_unico_persona = A.codigo_unico_persona 
+ AND (RUE.baja_fecha is null or CURRENT_TIMESTAMP <= RUE.baja_fecha) 
+ and CURRENT_TIMESTAMP >= RUE.vigencia
+ ORDER BY vigencia DESC) email,
+ DATEDIFF(YEAR,A.naci_fecha ,GETDATE()) edad,
+ RTRIM(CASE WHEN HISTO.paren='T' AND HISTO.paren_real = 'T' THEN 'Titular' ELSE pt.deno  END) AS tipo_usuario
+from afiliados	 A (NOLOCK)
 LEFT JOIN AFI_CREDENCIALES AFICR (NOLOCK) ON A.CONTRA=AFICR.CONTRA AND A.INTE=AFICR.INTE /*5*/
 LEFT JOIN dbo.AFI_CLASE AC (NOLOCK) ON A.contra=AC.contra /*3*/
 LEFT JOIN dbo.SUBCTA_CONTRATO SUBC (NOLOCK) ON AC.CUENTA = SUBC.CUENTA AND AC.SUBCTA = SUBC.SUBCTA /*4*/
@@ -46,6 +55,7 @@ LEFT JOIN (SELECT PLAN_CODI, PAGO_COPA FROM dbo.COBER_COPA_GRUPOS WHERE BAJA_FEC
 LEFT JOIN AFI_HISTO_PAREN HISTO (NOLOCK) ON HISTO.inte=A.inte AND HISTO.contra=A.contra /*2*/
 LEFT JOIN REGISTRO_UNICO_DOMICILIOS F (NOLOCK) ON F.codigo_unico_persona=A.codigo_unico_persona
 LEFT JOIN PARTIDOS G ON G.partido=F.loca
+LEFT JOIN parentescos pt ON pt.paren = HISTO.paren
 where 
  /*1*/AFIP.vigen_desde = (select max(AFIPF.vigen_desde) from dbo.AFI_PLANES AFIPF (NOLOCK) where AFIPF.contra = AFIP.contra and AFIPF.vigen_desde <= CONVERT (date, GETDATE()) and ( AFIPF.baja_fecha is null or AFIPF.baja_fecha > CONVERT (date, GETDATE()) or a.realbaja_fecha > CONVERT (date, GETDATE()) ) AND AFIPF.tari NOT LIKE '%SEOR%' ) AND
 /*2*/HISTO.vigen_desde = (select max(ahp.vigen_desde) from AFI_HISTO_PAREN ahp (NOLOCK) where HISTO.contra = ahp.contra and HISTO.inte = ahp.inte and ahp.vigen_desde <= CONVERT (date, GETDATE()) and (ahp.baja_fecha is null or a.realbaja_fecha > CONVERT (date, GETDATE()) )) AND
@@ -62,7 +72,8 @@ UNION
 /*QUERY - BENEFICIARIOS DE CONTRATOS CON RESPONSABLE PAGADOR SIN SERVICIO*/
 SELECT
 --RTRIM((CASE WHEN CUEN.CUENTA_TIPO = 'C' THEN CUEN.RAZON ELSE '' END)) AS nombreColectivo,
-RTRIM(CONCAT(a.NOMBRE, ' ', ISNULL(a.NOMBRE2, ''), ' ', a.APE, ' ', ISNULL(a.APE2, ''))) AS nombreAfiliado,
+-- RTRIM(CONCAT(a.NOMBRE, ' ', ISNULL(a.NOMBRE2, ''), ' ', a.APE, ' ', ISNULL(a.APE2, ''))) AS nombreAfiliado,
+RTRIM(CONCAT(TRIM(a.NOMBRE), ' ', ISNULL(TRIM(a.NOMBRE2), ''), ' ', TRIM(a.APE), ' ', ISNULL(TRIM(a.APE2), ''))) AS nombreAfiliado,
 RTRIM(a.DOCU_NRO) AS numIdentificacion,
 RTRIM(a.docu_tipo) AS tipoIdentificacion,
 --RTRIM(AFICR.ASESOR) AS codigoAsesor,
@@ -82,7 +93,25 @@ CONVERT(varchar, a.NACI_FECHA, 112) AS fechaNacimiento,
 RTRIM(CASE WHEN HISTO.paren='T' AND HISTO.paren_real = 'T' THEN 'Titular' ELSE 'Beneficiario' END) AS parentesco,
 F.loca AS ciudad, G.provin AS departamento,
 --RTRIM(CASE WHEN PLA.plan_grupo IN ('ORO', 'OPL','PJV','ASO') THEN '1' ELSE '0' END) AS asist_internal 
-RTRIM(AFICR.linea_negocio) AS lineaNegocio, RTRIM(PLA.plan_grupo) AS planGrupo 
+RTRIM(AFICR.linea_negocio) AS lineaNegocio, RTRIM(PLA.plan_grupo) AS planGrupo, 
+(CASE 
+ WHEN(SELECT TOP 1 TELE FROM REGISTRO_UNICO_TELEFONOS WHERE CODIGO_UNICO_PERSONA=A.CODIGO_UNICO_PERSONA AND TIPO_TELE='F' ORDER BY MODI_FECHA DESC) IS NOT NULL THEN(SELECT TOP 1 TELE FROM REGISTRO_UNICO_TELEFONOS WHERE CODIGO_UNICO_PERSONA=A.CODIGO_UNICO_PERSONA AND TIPO_TELE='F' ORDER BY MODI_FECHA DESC) 
+ WHEN(SELECT TOP 1 TELE FROM REGISTRO_UNICO_TELEFONOS WHERE CODIGO_UNICO_PERSONA=A.CODIGO_UNICO_PERSONA AND TIPO_TELE='P' ORDER BY MODI_FECHA DESC) IS NOT NULL THEN(SELECT TOP 1 TELE FROM REGISTRO_UNICO_TELEFONOS WHERE CODIGO_UNICO_PERSONA=A.CODIGO_UNICO_PERSONA AND TIPO_TELE='P' ORDER BY MODI_FECHA DESC) ELSE '' END) AS telefono_f, 
+ (SELECT TOP(1) RUT.tele
+ FROM [dbo].[REGISTRO_UNICO_TELEFONOS] RUT 
+ WHERE RUT.codigo_unico_persona = A.codigo_unico_persona 
+ AND RUT.tipo_tele = 'C' 
+ AND (RUT.baja_fecha is null or CURRENT_TIMESTAMP <= RUT.baja_fecha) 
+ and CURRENT_TIMESTAMP >= RUT.vigencia
+ ORDER BY vigencia DESC) telefono_c,
+  (SELECT TOP(1) RUE.email
+ FROM [dbo].[REGISTRO_UNICO_EMAILS] RUE 
+ WHERE RUE.codigo_unico_persona = A.codigo_unico_persona 
+ AND (RUE.baja_fecha is null or CURRENT_TIMESTAMP <= RUE.baja_fecha) 
+ and CURRENT_TIMESTAMP >= RUE.vigencia
+ ORDER BY vigencia DESC) email,
+DATEDIFF(YEAR,A.naci_fecha ,GETDATE()) edad,
+RTRIM(CASE WHEN HISTO.paren='T' AND HISTO.paren_real = 'T' THEN 'Titular' ELSE pt.deno  END) AS tipo_usuario 
 FROM afiliados A (NOLOCK)
 LEFT JOIN AFI_CREDENCIALES AFICR (NOLOCK) ON A.CONTRA=AFICR.CONTRA AND A.INTE=AFICR.INTE /*5*/
 LEFT JOIN dbo.AFI_CLASE AC (NOLOCK) ON A.contra=AC.contra /*3*/
@@ -96,6 +125,7 @@ LEFT JOIN (SELECT PLAN_CODI, PAGO_COPA FROM dbo.COBER_COPA_GRUPOS WHERE BAJA_FEC
 LEFT JOIN AFI_HISTO_PAREN HISTO (NOLOCK) ON HISTO.inte=A.inte AND HISTO.contra=A.contra /*2*/
 LEFT JOIN REGISTRO_UNICO_DOMICILIOS F (NOLOCK) ON F.codigo_unico_persona=A.codigo_unico_persona
 LEFT JOIN PARTIDOS G ON G.partido=F.loca
+LEFT JOIN parentescos pt ON pt.paren = HISTO.paren
 where 
 /*1*/AFIP.vigen_desde = (select max(AFIPF.vigen_desde) from dbo.AFI_PLANES AFIPF (NOLOCK) where AFIPF.contra = AFIP.contra and AFIPF.vigen_desde <= CONVERT (date, GETDATE()) and ( AFIPF.baja_fecha is null or AFIPF.baja_fecha > CONVERT (date, GETDATE()) ) AND AFIPF.tari NOT LIKE '%SEOR%' ) AND
 /*2*/HISTO.vigen_desde = (select max(ahp.vigen_desde) from AFI_HISTO_PAREN ahp (NOLOCK) where HISTO.contra = ahp.contra and HISTO.inte = ahp.inte and ahp.vigen_desde <= CONVERT (date, GETDATE()) and ahp.baja_fecha is null ) AND
@@ -107,7 +137,8 @@ UNION
 /*beneficiarios*/
 SELECT
 --RTRIM((CASE WHEN CUEN.CUENTA_TIPO = 'C' THEN CUEN.RAZON ELSE '' END)) AS nombreColectivo,
-RTRIM(CONCAT(a.NOMBRE, ' ', ISNULL(a.NOMBRE2, ''), ' ', a.APE, ' ', ISNULL(a.APE2, '') )) AS nombreAfiliado,
+-- RTRIM(CONCAT(a.NOMBRE, ' ', ISNULL(a.NOMBRE2, ''), ' ', a.APE, ' ', ISNULL(a.APE2, '') )) AS nombreAfiliado,
+RTRIM(CONCAT(TRIM(a.NOMBRE), ' ', ISNULL(TRIM(a.NOMBRE2), ''), ' ', TRIM(a.APE), ' ', ISNULL(TRIM(a.APE2), ''))) AS nombreAfiliado,
 RTRIM(a.DOCU_NRO) AS numIdentificacion,
 RTRIM(a.docu_tipo) AS tipoIdentificacion,
 --RTRIM(AFICR.ASESOR) AS codigoAsesor,
@@ -127,7 +158,25 @@ CONVERT(varchar, a.NACI_FECHA, 112) AS fechaNacimiento,
 RTRIM(CASE WHEN hp.paren='T' AND hp.paren_real = 'T' THEN 'Titular' ELSE 'Beneficiario' END) AS parentesco,
 F.loca AS ciudad, G.provin AS departamento,
 --RTRIM(CASE WHEN PLA.plan_grupo IN ('ORO', 'OPL','PJV','ASO') THEN '1' ELSE '0' END) AS asist_internal
-RTRIM(AFICR.linea_negocio) AS lineaNegocio, RTRIM(PLA.plan_grupo) AS planGrupo 
+RTRIM(AFICR.linea_negocio) AS lineaNegocio, RTRIM(PLA.plan_grupo) AS planGrupo,
+(CASE 
+ WHEN(SELECT TOP 1 TELE FROM REGISTRO_UNICO_TELEFONOS WHERE CODIGO_UNICO_PERSONA=A.CODIGO_UNICO_PERSONA AND TIPO_TELE='F' ORDER BY MODI_FECHA DESC) IS NOT NULL THEN(SELECT TOP 1 TELE FROM REGISTRO_UNICO_TELEFONOS WHERE CODIGO_UNICO_PERSONA=A.CODIGO_UNICO_PERSONA AND TIPO_TELE='F' ORDER BY MODI_FECHA DESC) 
+ WHEN(SELECT TOP 1 TELE FROM REGISTRO_UNICO_TELEFONOS WHERE CODIGO_UNICO_PERSONA=A.CODIGO_UNICO_PERSONA AND TIPO_TELE='P' ORDER BY MODI_FECHA DESC) IS NOT NULL THEN(SELECT TOP 1 TELE FROM REGISTRO_UNICO_TELEFONOS WHERE CODIGO_UNICO_PERSONA=A.CODIGO_UNICO_PERSONA AND TIPO_TELE='P' ORDER BY MODI_FECHA DESC) ELSE '' END) AS telefono_f, 
+ (SELECT TOP(1) RUT.tele
+ FROM [dbo].[REGISTRO_UNICO_TELEFONOS] RUT 
+ WHERE RUT.codigo_unico_persona = A.codigo_unico_persona 
+ AND RUT.tipo_tele = 'C' 
+ AND (RUT.baja_fecha is null or CURRENT_TIMESTAMP <= RUT.baja_fecha) 
+ and CURRENT_TIMESTAMP >= RUT.vigencia
+ ORDER BY vigencia DESC) telefono_c,
+  (SELECT TOP(1) RUE.email
+ FROM [dbo].[REGISTRO_UNICO_EMAILS] RUE 
+ WHERE RUE.codigo_unico_persona = A.codigo_unico_persona 
+ AND (RUE.baja_fecha is null or CURRENT_TIMESTAMP <= RUE.baja_fecha) 
+ and CURRENT_TIMESTAMP >= RUE.vigencia
+ ORDER BY vigencia DESC) email,
+DATEDIFF(YEAR,A.naci_fecha ,GETDATE()) edad,
+RTRIM(CASE WHEN hp.paren='T' AND hp.paren_real = 'T' THEN 'Titular' ELSE pt.deno  END) AS tipo_usuario 
 from afiliados A (NOLOCK)
 LEFT JOIN AFI_CREDENCIALES AFICR (NOLOCK) ON A.CONTRA=AFICR.CONTRA AND A.INTE=AFICR.INTE /*5*/
 LEFT JOIN dbo.AFI_CLASE AC (NOLOCK) ON A.contra=AC.contra /*3*/
@@ -141,6 +190,7 @@ LEFT JOIN AFI_HISTO_PAREN hp (NOLOCK) ON hp.inte=A.inte AND hp.contra=A.contra /
 LEFT JOIN (SELECT PLAN_CODI, PAGO_COPA FROM dbo.COBER_COPA_GRUPOS WHERE BAJA_FECHA IS NULL GROUP BY PLAN_CODI, PAGO_COPA) FRAN ON FRAN.PLAN_CODI = PLA.PLAN_CODI
 LEFT JOIN REGISTRO_UNICO_DOMICILIOS F (NOLOCK) ON F.codigo_unico_persona=A.codigo_unico_persona
 LEFT JOIN PARTIDOS G ON G.partido=F.loca
+LEFT JOIN parentescos pt ON pt.paren = hp.paren
 where 
 /*1*/AFIP.vigen_desde = (select max(AFIPF.vigen_desde) from dbo.AFI_PLANES AFIPF (NOLOCK) where AFIPF.contra = AFIP.contra and AFIPF.vigen_desde <= CONVERT (date, GETDATE()) and ( AFIPF.baja_fecha is null or AFIPF.baja_fecha > CONVERT (date, GETDATE()) or a.realbaja_fecha > CONVERT (date, GETDATE())) AND AFIPF.tari NOT LIKE '%SEOR%' ) AND
 /*2*/hp.vigen_desde = (select max(ahp.vigen_desde) from AFI_HISTO_PAREN ahp (NOLOCK) where hp.contra = ahp.contra and hp.inte = ahp.inte and ahp.vigen_desde <= CONVERT (date, GETDATE()) and (ahp.baja_fecha is null or a.realbaja_fecha > CONVERT (date, GETDATE())) ) AND
@@ -151,5 +201,9 @@ where
 and hp.paren_real <> 'T' 
  and a.docu_nro = @id and a.docu_tipo = @tipo_id
 order by parentesco desc
+
 end
-GO
+
+
+
+
