@@ -887,7 +887,7 @@ create or replace package body psgen_snpinsumobotafe is
       end if;
 
          open registros for 
-            select aas.id as afiliacion, aape.descripcion as estado
+            select aas.id as afiliacion, aape.codigo ,aape.descripcion as estado
             from api_afemp_step1 aas inner join API_AFEMP_P_ESTADOS aape on aas.codigo_estado = aape.codigo
             where id=prm_solicitud_afe; 
 

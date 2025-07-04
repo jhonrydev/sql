@@ -33,9 +33,6 @@ create or replace package psgen_snpinsumobotafe as
       registros         out sys_refcursor
    );
 
-
-
-
    procedure pr_ajustainsumobotafe (
       prm_solicitudes_afe in varchar2,
       prm_estado          in varchar2,
