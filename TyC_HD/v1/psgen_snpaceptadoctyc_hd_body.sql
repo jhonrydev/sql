@@ -1,4 +1,4 @@
-create or replace package body psgen_snpaceptadoctyc_hd2 as
+create or replace package body psgen_snpaceptadoctyc_hd as
 
 
 
@@ -26,13 +26,12 @@ create or replace package body psgen_snpaceptadoctyc_hd2 as
       ldt_fecha date;
       lvc_hora  varchar2(8);
       lnu_exist number(2) := 0;
-      cod_app varchar2(20);
    begin
       coderror := 0;
-      if ( pty_tipo_doc is null or pty_tipo_doc = '' ) then
+      if ( pty_tipo_doc is null
+      or pty_tipo_doc = '' ) then
          coderror := 5;
          msgerror := 'El parametro de entrada Tipo Documento Usuario es obligatorio';
-         return;
       else
          open cu_tipo_id;
          fetch cu_tipo_id into lnu_exist;
@@ -40,74 +39,71 @@ create or replace package body psgen_snpaceptadoctyc_hd2 as
          if ( lnu_exist = 0 ) then
             coderror := 1;
             msgerror := 'El parametro de entrada Tipo Documento Usuario no es valido';
-            return;
          end if;
 
       end if;
 
-      if ( pty_num_doc is null or pty_num_doc = '' ) then
+      if ( pty_num_doc is null
+      or pty_num_doc = '' ) then
          coderror := 5;
          msgerror := 'El parametro de entrada Numero Documento Usuario es obligatorio';
-         return;
       end if;
-
-      if ( pty_nom_usu is null or pty_nom_usu = '' ) then
+      if ( pty_nom_usu is null
+      or pty_nom_usu = '' ) then
          coderror := 5;
-         msgerror := 'El parametro de entrada Nombre Completo del Usario es obligatorio';
-         return;
+         msgerror := 'El parametro de entrada Nombre Completo del Uusario es obligatorio';
       end if;
-
-      if ( pty_ip is null or pty_ip = '' ) then
+      if ( pty_ip is null
+      or pty_ip = '' ) then
          coderror := 5;
          msgerror := 'El parametro de entrada Direccion IP es obligatorio';
-         return;
       end if;
-
-      if ( pty_cod_app is null or pty_cod_app = '' ) then
+      if ( pty_cod_app is null
+      or pty_cod_app = '' ) then
          coderror := 5;
          msgerror := 'El parametro de entrada Codigo Aplicación es obligatorio';
-         return;
       end if;
 
-      if ( pty_tipo_usu is null or pty_tipo_usu = '' ) then
+      if ( pty_tipo_usu is null
+      or pty_tipo_usu = '' ) then
          coderror := 5;
          msgerror := 'El parametro de entrada Tipo Usuario es obligatorio';
-         return;
       else
-         if ( pty_tipo_usu not in ( 'USUARIO','PRESTADOR','ASESOR' ) ) then
+         if ( pty_tipo_usu not in ( 'USUARIO',
+                                    'PRESTADOR',
+                                    'ASESOR' ) ) then
             coderror := 1;
             msgerror := 'El parametro de entrada Tipo Usuario no es valido';
-            return;
          end if;
       end if;
 
-      if ( pty_nom_emp is null or pty_nom_emp = '' ) then
+      if ( pty_nom_emp is null
+      or pty_nom_emp = '' ) then
          coderror := 5;
          msgerror := 'El parametro de entrada Nombre Empresa es obligatorio';
-         return;
       end if;
-
-      if ( pty_version_doc is null or pty_version_doc = '' ) then
+      if ( pty_version_doc is null
+      or pty_version_doc = '' ) then
          coderror := 5;
          msgerror := 'El parametro de entrada Version del Documento es obligatorio';
-         return;
       end if;
 
-      if(pty_cod_app='APPMP' or pty_cod_app='OVAWEB' or pty_cod_app='WSP') THEN
-         cod_app:='OVU-APPMP-WSP';
-      else
-         cod_app:=pty_cod_app;
-      end if;
+
 
       if ( coderror = 0 ) then
          ldt_fecha := to_date ( pty_fecha,'DD/MM/YY' );
-         if ( ldt_fecha is null or ldt_fecha = '' ) then
+         if ( ldt_fecha is null
+         or ldt_fecha = '' ) then
             ldt_fecha := trunc(sysdate);
          end if;
 
          lvc_hora := pty_hora;
-         if ( lvc_hora is null or lvc_hora = '' ) then
-            lvc_hora := to_char(sysdate,'HH:MI:SS');
+         if ( lvc_hora is null
+         or lvc_hora = '' ) then
+            lvc_hora := to_char(
+               sysdate,
+               'HH:MI:SS'
+            );
          end if;
 
          begin
@@ -127,7 +123,7 @@ create or replace package body psgen_snpaceptadoctyc_hd2 as
                        pty_num_doc,
                        pty_nom_usu,
                        pty_ip,
-                       cod_app,
+                       pty_cod_app,
                        pty_tipo_usu,
                        pty_nom_emp,
                        pty_version_doc,
@@ -169,13 +165,12 @@ create or replace package body psgen_snpaceptadoctyc_hd2 as
       ldt_fecha date;
       lvc_hora  varchar2(8);
       lnu_exist number(2) := 0;
-      cod_app varchar2(20);
    begin
       coderror := 0;
-      if ( pty_tipo_doc is null or pty_tipo_doc = '' ) then
+      if ( pty_tipo_doc is null
+      or pty_tipo_doc = '' ) then
          coderror := 5;
          msgerror := 'El parametro de entrada Tipo Documento Usuario es obligatorio';
-         return;
       else
          open cu_tipo_id;
          fetch cu_tipo_id into lnu_exist;
@@ -183,74 +178,71 @@ create or replace package body psgen_snpaceptadoctyc_hd2 as
          if ( lnu_exist = 0 ) then
             coderror := 1;
             msgerror := 'El parametro de entrada Tipo Documento Usuario no es valido';
-            return;
          end if;
 
       end if;
 
-      if ( pty_num_doc is null or pty_num_doc = '' ) then
+      if ( pty_num_doc is null
+      or pty_num_doc = '' ) then
          coderror := 5;
          msgerror := 'El parametro de entrada Numero Documento Usuario es obligatorio';
-         return;
       end if;
-
-      if ( pty_nom_usu is null or pty_nom_usu = '' ) then
+      if ( pty_nom_usu is null
+      or pty_nom_usu = '' ) then
          coderror := 5;
          msgerror := 'El parametro de entrada Nombre Completo del Uusario es obligatorio';
-         return;
       end if;
-
-      if ( pty_ip is null or pty_ip = '' ) then
+      if ( pty_ip is null
+      or pty_ip = '' ) then
          coderror := 5;
          msgerror := 'El parametro de entrada Direccion IP es obligatorio';
-         return;
       end if;
-
-      if ( pty_cod_app is null or pty_cod_app = '' ) then
+      if ( pty_cod_app is null
+      or pty_cod_app = '' ) then
          coderror := 5;
          msgerror := 'El parametro de entrada Codigo Aplicación es obligatorio';
-         return;
       end if;
 
-      if ( pty_tipo_usu is null or pty_tipo_usu = '' ) then
+      if ( pty_tipo_usu is null
+      or pty_tipo_usu = '' ) then
          coderror := 5;
          msgerror := 'El parametro de entrada Tipo Usuario es obligatorio';
-         return;
       else
-         if ( pty_tipo_usu not in ( 'USUARIO','PRESTADOR','ASESOR' ) ) then
+         if ( pty_tipo_usu not in ( 'USUARIO',
+                                    'PRESTADOR',
+                                    'ASESOR' ) ) then
             coderror := 1;
             msgerror := 'El parametro de entrada Tipo Usuario no es valido';
-            return;
          end if;
       end if;
 
-      if ( pty_nom_emp is null or pty_nom_emp = '' ) then
+      if ( pty_nom_emp is null
+      or pty_nom_emp = '' ) then
          coderror := 5;
          msgerror := 'El parametro de entrada Nombre Empresa es obligatorio';
-         return;
       end if;
-
-      if ( pty_version_doc is null or pty_version_doc = '' ) then
+      if ( pty_version_doc is null
+      or pty_version_doc = '' ) then
          coderror := 5;
          msgerror := 'El parametro de entrada Version del Documento es obligatorio';
-         return;
       end if;
 
-      if(pty_cod_app='APPMP' or pty_cod_app='OVAWEB' or pty_cod_app='WSP') THEN
-         cod_app:='OVU-APPMP-WSP';
-      else
-         cod_app:=pty_cod_app;
-      end if;
+
 
       if ( coderror = 0 ) then
          ldt_fecha := to_date ( pty_fecha,'DD/MM/YY' );
-         if ( ldt_fecha is null or ldt_fecha = '' ) then
+         if ( ldt_fecha is null
+         or ldt_fecha = '' ) then
             ldt_fecha := trunc(sysdate);
          end if;
 
          lvc_hora := pty_hora;
-         if ( lvc_hora is null or lvc_hora = '' ) then
-            lvc_hora := to_char( sysdate,'HH:MI:SS');
+         if ( lvc_hora is null
+         or lvc_hora = '' ) then
+            lvc_hora := to_char(
+               sysdate,
+               'HH:MI:SS'
+            );
          end if;
 
          begin
@@ -270,7 +262,7 @@ create or replace package body psgen_snpaceptadoctyc_hd2 as
                        pty_num_doc,
                        pty_nom_usu,
                        pty_ip,
-                       cod_app,
+                       pty_cod_app,
                        pty_tipo_usu,
                        pty_nom_emp,
                        pty_version_doc,
@@ -287,4 +279,4 @@ create or replace package body psgen_snpaceptadoctyc_hd2 as
 
    end pr_aceptdochd;
 
-end psgen_snpaceptadoctyc_hd2;
+end psgen_snpaceptadoctyc_hd;

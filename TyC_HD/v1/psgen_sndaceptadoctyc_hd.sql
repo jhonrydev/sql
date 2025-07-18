@@ -30,13 +30,13 @@ AS
 						             codError   OUT NUMBER,
 						             msgError OUT VARCHAR2,
 						             registros OUT SYS_REFCURSOR);
-
+                                     
   /* Creados por WFMS5471 para consumo del nuevo ADM*/
-
+  
   PROCEDURE pr_getListaAppTyC_HD(codError         OUT NUMBER,
   					             msgError         OUT VARCHAR2,
 						         registros        OUT SYS_REFCURSOR);
-
+  
   PROCEDURE pr_getGuardaTyC_HD(pty_tipo_doc       IN ADM_VERSION_DOCUMENTOS.tipo_documento%type,
  						       pty_cod_app        IN ADM_VERSION_DOCUMENTOS.codigo_app%type,
                                prm_usuario        IN ADM_VERSION_DOCUMENTOS.usuario%type,
@@ -51,6 +51,6 @@ AS
                                   codError        OUT NUMBER,
                                   msgError        OUT VARCHAR2,
                                   registros       OUT SYS_REFCURSOR);
-
+    
 
  END PSGEN_SNDAceptaDocTyC_HD;

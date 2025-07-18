@@ -126,116 +126,99 @@ create or replace package body psgen_sndaceptadoctyc_hd as
       msgerror    out varchar2,
       registros   out sys_refcursor
    ) as
-      cod_app VARCHAR2(20);
    begin
       coderror := 0;
       if ( pty_tipo_id is null
       or pty_tipo_id = '' ) then
          coderror := 5;
          msgerror := 'El parametro de entrada Tipo Documento Usuario es obligatorio';
-         return;
       end if;
       if ( pty_num_id is null
       or pty_num_id = '' ) then
          coderror := 5;
          msgerror := 'El parametro de entrada Numero Documento Usuario es obligatorio';
-         return;
       end if;
       if ( pty_cod_app is null
       or pty_cod_app = '' ) then
          coderror := 5;
          msgerror := 'El parametro de entrada Aplicacion es obligatorio';
-         return;
-      end if;
-
-      if(pty_cod_app='APPMP' or pty_cod_app='OVAWEB' or pty_cod_app='WSP') THEN
-         cod_app:='OVU-APPMP-WSP';
-      else
-         cod_app:=pty_cod_app;
       end if;
 
       if ( coderror = 0 ) then
-      -- Obtiene la informació de la aceptación de TyC y HD 
-         open registros for with 
--- Versión vigente de TyC
-          tyc_vigente as (
+         open registros for select (
                                select version
                                  from adm_version_documentos
                                 where id = (
                                   select max(id)
                                     from adm_version_documentos
                                    where tipo_documento = 'Términos y Condiciones'
-                                     and codigo_app = cod_app
+                                     and codigo_app = pty_cod_app
                                )
-                            ),
--- Última aceptación TyC
-                            tyc_aceptacion as (
-                               select version_documento,
-                                      to_char(
-                                         fecha,
-                                         'DD-MM-YYYY'
-                                      ) as fecha
-                                 from acepta_terminos_infomedica
-                                where consecutivo = (
-                                  select max(consecutivo)
-                                    from acepta_terminos_infomedica
-                                   where tipo_documento = pty_tipo_id
-                                     and numero_documento = pty_num_id
-                                     and nombre_aplicacion = cod_app
-                               )
-                            ),
--- Versión vigente de HD
-                            hd_vigente as (
-                               select version
-                                 from adm_version_documentos
-                                where id = (
-                                  select max(id)
-                                    from adm_version_documentos
-                                   where tipo_documento = 'Política de Tratamiento de Datos'
-                                     and codigo_app = cod_app
-                               )
-                            ),
--- Última aceptación HD
-                            hd_aceptacion as (
-                               select version_documento,
-                                      to_char(
-                                         fecha,
-                                         'DD-MM-YYYY'
-                                      ) as fecha
-                                 from acepta_terminos_hd
-                                where consecutivo = (
-                                  select max(consecutivo)
-                                    from acepta_terminos_hd
-                                   where tipo_documento = pty_tipo_id
-                                     and numero_documento = pty_num_id
-                                     and nombre_aplicacion = cod_app
-                               )
-                            )
-                            select (
-                               select version
-                                 from tyc_vigente
-                            ) as vtycvigente,
+                            ) vtycvigente,
                                    (
                                       select version_documento
-                                        from tyc_aceptacion
-                                   ) as vtycacepta,
+                                        from acepta_terminos_infomedica
+                                       where consecutivo = (
+                                         select max(consecutivo)
+                                           from acepta_terminos_infomedica
+                                          where tipo_documento = pty_tipo_id
+                                            and numero_documento = pty_num_id
+                                            and nombre_aplicacion = pty_cod_app
+                                      )
+                                   ) vtycacepta,
                                    (
-                                      select fecha
-                                        from tyc_aceptacion
-                                   ) as fechaaceptatyc,
+                                      select to_char(
+                                         fecha,
+                                         'DD-MM-YYYY'
+                                      )
+                                        from acepta_terminos_infomedica
+                                       where consecutivo = (
+                                         select max(consecutivo)
+                                           from acepta_terminos_infomedica
+                                          where tipo_documento = pty_tipo_id
+                                            and numero_documento = pty_num_id
+                                            and nombre_aplicacion = pty_cod_app
+                                      )
+                                   ) fechaaceptatyc,
                                    (
                                       select version
-                                        from hd_vigente
-                                   ) as vhdvigente,
+                                        from adm_version_documentos
+                                       where id = (
+                                         select max(id)
+                                           from adm_version_documentos
+                                          where tipo_documento = 'Política de Tratamiento de Datos'
+                                            and codigo_app = pty_cod_app
+                                      )
+                                   ) vhdvigente,
                                    (
                                       select version_documento
-                                        from hd_aceptacion
-                                   ) as vhdacepta,
+                                        from acepta_terminos_hd
+                                       where consecutivo = (
+                                         select max(consecutivo)
+                                           from acepta_terminos_hd
+                                          where tipo_documento = pty_tipo_id
+                                            and numero_documento = pty_num_id
+                                            and nombre_aplicacion = pty_cod_app
+                                      )
+                                   ) vhdacepta,
                                    (
-                                      select fecha
-                                        from hd_aceptacion
-                                   ) as fechaaceptahd
+                                      select to_char(
+                                         fecha,
+                                         'DD-MM-YYYY'
+                                      )
+                                        from acepta_terminos_hd
+                                       where consecutivo = (
+                                         select max(consecutivo)
+                                           from acepta_terminos_hd
+                                          where tipo_documento = pty_tipo_id
+                                            and numero_documento = pty_num_id
+                                            and nombre_aplicacion = pty_cod_app
+                                      )
+                                   ) fechaaceptahd
                               from dual;
+
+
+
          coderror := 0;
          msgerror := 'Ok';
       end if;
