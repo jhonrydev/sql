@@ -4,7 +4,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 /*
-  Nombre del Stored Procedure: getPrestadoresUrgenciasPediatricas
+  Nombre del Stored Procedure: getPrestadores
   Autor: Jhon Medina
   Fecha de creación: Abril 2024
   Objetivo: Permite obtener los prestadores que ofrecen servicios de acuerdo a filtros especificados
@@ -99,6 +99,20 @@ BEGIN
 
 		--obtener los prestadores teniendo en cuenta los filtros
 		IF(@codPrestador IS NOT NULL AND @codCiudad IS NOT NULL AND @cartilla IS NOT NULL)
+			BEGIN
+				SELECT carti AS cartilla,prestad AS codPrestador,prestadores_tipo AS tipoPrestador, PRESTADOR AS prestador, nombre_abre AS descripcionPrestador,prestadores_ape_razon AS razonSocial, espe AS codEspecialidad, especialidades_exten_deno AS especialidad, codsubespecialidad AS codSubEspecialidad ,sub_especialidades_exten_deno AS subEspecialidad,codafinidad AS codAfinidad ,Nombre_Afinidad AS Afinidad, cod_ciudad AS codCiudad, ciudad, direccion_lugar_atencion AS direccion,latitud, longitud, email_citas AS email,prestad_lugares_tele1 AS telefono1,ext1,  prestad_lugares_tele2 AS telefono2, ext2,tele_nacional AS lineaNacional, prestad_lugares_celu1 AS celular1, prestad_lugares_celu2 AS celular2, telcelu_wp AS celularWP
+				FROM Visor_directorios_5 v5
+				WHERE V5.prestad = @codPrestador
+				AND V5.cod_ciudad = @codCiudad
+				AND V5.carti = @cartilla
+
+				SET @coderror = 0
+				SET @msgerror ='Ok'
+				RETURN
+			END
+
+		--obtener los prestadores teniendo en cuenta los filtros
+		IF(@cartilla IS NOT NULL AND @codCiudad IS NOT NULL )
 			BEGIN
 				SELECT carti AS cartilla,prestad AS codPrestador,prestadores_tipo AS tipoPrestador, PRESTADOR AS prestador, nombre_abre AS descripcionPrestador,prestadores_ape_razon AS razonSocial, espe AS codEspecialidad, especialidades_exten_deno AS especialidad, codsubespecialidad AS codSubEspecialidad ,sub_especialidades_exten_deno AS subEspecialidad,codafinidad AS codAfinidad ,Nombre_Afinidad AS Afinidad, cod_ciudad AS codCiudad, ciudad, direccion_lugar_atencion AS direccion,latitud, longitud, email_citas AS email,prestad_lugares_tele1 AS telefono1,ext1,  prestad_lugares_tele2 AS telefono2, ext2,tele_nacional AS lineaNacional, prestad_lugares_celu1 AS celular1, prestad_lugares_celu2 AS celular2, telcelu_wp AS celularWP
 				FROM Visor_directorios_5 v5
