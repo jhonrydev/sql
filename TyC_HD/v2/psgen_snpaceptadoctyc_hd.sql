@@ -1,11 +1,4 @@
---------------------------------------------------------
--- Archivo creado  - miércoles-julio-09-2025   
---------------------------------------------------------
---------------------------------------------------------
---  DDL for Package PSGEN_SNPACEPTADOCTYC_HD
---------------------------------------------------------
-
-  CREATE OR REPLACE PACKAGE "SALUDMP"."PSGEN_SNPACEPTADOCTYC_HD" 
+create or replace PACKAGE           PSGEN_SNPAceptaDocTyC_HD
 AS
    /* -----------------------------------------------------------------------------
    Copyright ¿Coomeva S.A. - Colombia

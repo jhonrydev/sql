@@ -18,25 +18,39 @@ create or replace package body psgen_snpaceptadoctyc_hd as
       registros       out sys_refcursor
    ) as
 
-      cursor cu_tipo_id is
-      select count(1)
-        from core_tipo_documentos
-       where codigo = pty_tipo_doc;
+      CURSOR cu_valida_data IS
+         WITH valida_version AS (
+            SELECT count(1) AS version_aceptada
+            FROM ACEPTA_TERMINOS_INFOMEDICA 
+            WHERE numero_documento=pty_num_doc
+            AND version_documento=pty_version_doc
+            ),
+            valida_documento AS (
+               SELECT count(1) AS documento_valido
+                  FROM core_tipo_documentos
+                  WHERE codigo = pty_tipo_doc
+            ) 
+            SELECT 
+               (SELECT version_aceptada FROM valida_version) AS version_aceptada,
+               (SELECT documento_valido FROM valida_documento) AS documento_valido
+            FROM dual;
 
       ldt_fecha date;
       lvc_hora  varchar2(8);
       lnu_exist number(2) := 0;
       cod_app varchar2(20);
+      version_aceptada varchar2(2);
    begin
-      coderror := 0;
+
+      open cu_valida_data;
+      fetch cu_valida_data into version_aceptada,lnu_exist;
+      close cu_valida_data;
+
       if ( pty_tipo_doc is null or pty_tipo_doc = '' ) then
          coderror := 5;
          msgerror := 'El parametro de entrada (pty_tipo_doc) es obligatorio';
          return;
       else
-         open cu_tipo_id;
-         fetch cu_tipo_id into lnu_exist;
-         close cu_tipo_id;
          if ( lnu_exist = 0 ) then
             coderror := 1;
             msgerror := 'El parametro de entrada (pty_tipo_doc) no es valido';
@@ -44,6 +58,18 @@ create or replace package body psgen_snpaceptadoctyc_hd as
          end if;
 
       end if;
+
+      -- if ( pty_hora is null or pty_hora = '' ) then
+      --    coderror := 5;
+      --    msgerror := 'El parametro de entrada (pty_hora) es obligatorio';
+      --    return;
+      -- end if;
+
+      --  if ( pty_fecha is null or pty_fecha = '' ) then
+      --    coderror := 5;
+      --    msgerror := 'El parametro de entrada (pty_fecha) es obligatorio';
+      --    return;
+      -- end if;
 
       if ( pty_num_doc is null or pty_num_doc = '' ) then
          coderror := 5;
@@ -93,13 +119,8 @@ create or replace package body psgen_snpaceptadoctyc_hd as
          return;
       end if;
 
-      if(pty_cod_app='APPMP' or pty_cod_app='OVAWEB' or pty_cod_app='WSP') THEN
-         cod_app:='OVU-APPMP-WSP';
-      else
-         cod_app:=pty_cod_app;
-      end if;
 
-      if ( coderror = 0 ) then
+      if ( version_aceptada = 0 ) then
          ldt_fecha := to_date ( pty_fecha,'DD/MM/YY' );
          if ( ldt_fecha is null or ldt_fecha = '' ) then
             ldt_fecha := trunc(sysdate);
@@ -111,6 +132,7 @@ create or replace package body psgen_snpaceptadoctyc_hd as
          end if;
 
          begin
+
             insert into acepta_terminos_infomedica (
                hora,
                tipo_documento,
@@ -127,19 +149,24 @@ create or replace package body psgen_snpaceptadoctyc_hd as
                        pty_num_doc,
                        pty_nom_usu,
                        pty_ip,
-                       cod_app,
+                       pty_cod_app,
                        pty_tipo_usu,
                        pty_nom_emp,
                        pty_version_doc,
                        ldt_fecha );
+
             coderror := 0;
             msgerror := 'Ok';
             commit;
+
          exception
             when others then
                coderror := -1;
                msgerror := sqlerrm;
          end;
+      else
+         coderror := 0;
+         msgerror := 'Ok';
       end if;
 
    end pr_aceptdoctyc;
@@ -160,26 +187,40 @@ create or replace package body psgen_snpaceptadoctyc_hd as
       registros       out sys_refcursor
    ) as
 
-      cursor cu_tipo_id is
-      select count(1)
-        from core_tipo_documentos
-       where codigo = pty_tipo_doc;
+      CURSOR cu_valida_data IS
+         WITH valida_version AS (
+            SELECT count(1) AS version_aceptada
+            FROM ACEPTA_TERMINOS_HD 
+            WHERE numero_documento=pty_num_doc
+            AND version_documento=pty_version_doc
+            ),
+            valida_documento AS (
+               SELECT count(1) AS documento_valido
+                  FROM core_tipo_documentos
+                  WHERE codigo = pty_tipo_doc
+            ) 
+            SELECT 
+               (SELECT version_aceptada FROM valida_version) AS version_aceptada,
+               (SELECT documento_valido FROM valida_documento) AS documento_valido
+            FROM dual;
 
 
       ldt_fecha date;
       lvc_hora  varchar2(8);
       lnu_exist number(2) := 0;
       cod_app varchar2(20);
+      version_aceptada varchar2(2);
    begin
-      coderror := 0;
+
+      open cu_valida_data;
+      fetch cu_valida_data into version_aceptada,lnu_exist;
+      close cu_valida_data;
+
       if ( pty_tipo_doc is null or pty_tipo_doc = '' ) then
          coderror := 5;
          msgerror := 'El parametro de entrada (pty_tipo_doc) es obligatorio';
          return;
       else
-         open cu_tipo_id;
-         fetch cu_tipo_id into lnu_exist;
-         close cu_tipo_id;
          if ( lnu_exist = 0 ) then
             coderror := 1;
             msgerror := 'El parametro de entrada (pty_tipo_doc) no es valido';
@@ -193,6 +234,18 @@ create or replace package body psgen_snpaceptadoctyc_hd as
          msgerror := 'El parametro de entrada (pty_num_doc) es obligatorio';
          return;
       end if;
+
+      -- if ( pty_hora is null or pty_hora = '' ) then
+      --    coderror := 5;
+      --    msgerror := 'El parametro de entrada (pty_hora) es obligatorio';
+      --    return;
+      -- end if;
+
+      -- if ( pty_fecha is null or pty_fecha = '' ) then
+      --    coderror := 5;
+      --    msgerror := 'El parametro de entrada (pty_fecha) es obligatorio';
+      --    return;
+      -- end if;
 
       if ( pty_nom_usu is null or pty_nom_usu = '' ) then
          coderror := 5;
@@ -236,13 +289,8 @@ create or replace package body psgen_snpaceptadoctyc_hd as
          return;
       end if;
 
-      if(pty_cod_app='APPMP' or pty_cod_app='OVAWEB' or pty_cod_app='WSP') THEN
-         cod_app:='OVU-APPMP-WSP';
-      else
-         cod_app:=pty_cod_app;
-      end if;
-
-      if ( coderror = 0 ) then
+  
+      if ( version_aceptada = 0 ) then
          ldt_fecha := to_date ( pty_fecha,'DD/MM/YY' );
          if ( ldt_fecha is null or ldt_fecha = '' ) then
             ldt_fecha := trunc(sysdate);
@@ -270,19 +318,25 @@ create or replace package body psgen_snpaceptadoctyc_hd as
                        pty_num_doc,
                        pty_nom_usu,
                        pty_ip,
-                       cod_app,
+                       pty_cod_app,
                        pty_tipo_usu,
                        pty_nom_emp,
                        pty_version_doc,
                        ldt_fecha );
+
             coderror := 0;
             msgerror := 'Ok';
-            commit;
+            COMMIT;
+
          exception
             when others then
                coderror := -1;
                msgerror := sqlerrm;
          end;
+
+      else 
+         coderror := 0;
+         msgerror := 'Ok';
       end if;
 
    end pr_aceptdochd;

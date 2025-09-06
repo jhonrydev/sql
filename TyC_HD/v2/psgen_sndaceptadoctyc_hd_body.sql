@@ -1,6 +1,6 @@
 create or replace package body psgen_sndaceptadoctyc_hd as
 
-   -- Obtiene la verción de TyC o HD más reciente
+   -- Obtiene la verción de los documentos de TyC o HD más reciente
    procedure fncu_getdoctyc_hd (
       pty_tipo_doc in adm_version_documentos.tipo_documento%type,
       pty_cod_app  in adm_version_documentos.codigo_app%type,
@@ -128,7 +128,7 @@ create or replace package body psgen_sndaceptadoctyc_hd as
 
    end fncu_getdoctyc_hd;
 
-
+-- Obtiene la información de aceptación de TyC y HD del usuario
    procedure fncu_getversiondoctyc_hd (
       pty_tipo_id in acepta_terminos_infomedica.tipo_documento%type,
       pty_num_id  in acepta_terminos_infomedica.numero_documento%type,
@@ -137,42 +137,79 @@ create or replace package body psgen_sndaceptadoctyc_hd as
       msgerror    out varchar2,
       registros   out sys_refcursor
    ) as
+      -- Valida la aceptación de TyC y HD de en las app (OVU-APPMP-WSP)
+      cursor cu_valida_aceptacion_tyc_hd (
+         tipo_id in acepta_terminos_infomedica.tipo_documento%type,
+         num_id  in acepta_terminos_infomedica.numero_documento%type
+      ) is  
+      WITH cti_valida_aceptacion as ( 
+         SELECT 
+         TYC.NOMBRE_APLICACION AS APP_TYC,
+         TYC.VERSION_DOCUMENTO AS VER_TYC,
+         HD.NOMBRE_APLICACION AS APP_HD, 
+         HD.VERSION_DOCUMENTO AS VER_HD
+         FROM ACEPTA_TERMINOS_INFOMEDICA TYC 
+         INNER JOIN ACEPTA_TERMINOS_HD HD 
+         ON TYC.NUMERO_DOCUMENTO = HD.NUMERO_DOCUMENTO AND TYC.TIPO_DOCUMENTO = HD.TIPO_DOCUMENTO
+         WHERE TYC.NUMERO_DOCUMENTO = pty_num_id
+         AND UPPER(TYC.TIPO_DOCUMENTO) = UPPER(tipo_id)
+         AND UPPER(TYC.NOMBRE_APLICACION) IN ('APPMP','OVAWEB','WSP')
+               ),
+         cti_valida_version_reciente as (
+            SELECT 
+            MAX(TYC.VERSION_DOCUMENTO) AS MAX_VER_TYC,
+            MAX(HD.VERSION_DOCUMENTO) AS MAX_VER_HD
+            FROM ACEPTA_TERMINOS_INFOMEDICA TYC 
+            INNER JOIN ACEPTA_TERMINOS_HD HD 
+            ON TYC.NUMERO_DOCUMENTO = HD.NUMERO_DOCUMENTO AND TYC.TIPO_DOCUMENTO = HD.TIPO_DOCUMENTO
+            WHERE TYC.NUMERO_DOCUMENTO = pty_num_id
+            AND UPPER(TYC.TIPO_DOCUMENTO) = UPPER(tipo_id)
+            AND UPPER(TYC.NOMBRE_APLICACION) IN ('APPMP','OVAWEB','WSP')
+         )
+         SELECT 
+            v.APP_TYC
+         FROM 
+            cti_valida_aceptacion v,
+            cti_valida_version_reciente vr
+         WHERE v.VER_TYC=vr.MAX_VER_TYC AND v.VER_HD = vr.MAX_VER_HD;
+
       cod_app VARCHAR2(20);
+      cod_app_doc VARCHAR2(20);
+      app_acepto VARCHAR2(20);
    begin
 
-      if ( pty_tipo_id is null
-      or pty_tipo_id = '' ) then
+      if ( pty_tipo_id is null or pty_tipo_id = '' ) then
          coderror := 5;
          msgerror := 'El parametro de entrada (pty_tipo_id) es obligatorio';
          return;
       end if;
 
-      if ( pty_num_id is null
-      or pty_num_id = '' ) then
+      if ( pty_num_id is null or pty_num_id = '' ) then
          coderror := 5;
          msgerror := 'El parametro de entrada (pty_num_id) es obligatorio';
          return;
       end if;
 
-      if ( pty_cod_app is null
-      or pty_cod_app = '' ) then
+      if ( pty_cod_app is null or pty_cod_app = '' ) then
          coderror := 5;
          msgerror := 'El parametro de entrada (pty_cod_app) es obligatorio';
          return;
       end if;
 
       if(pty_cod_app='APPMP' or pty_cod_app='OVAWEB' or pty_cod_app='WSP') THEN
-         SELECT nombre_aplicacion INTO cod_app 
-         FROM ACEPTA_TERMINOS_INFOMEDICA 
-         WHERE nombre_aplicacion IN ('APPMP','OVAWEB','WSP');
 
-         coderror := 5;
-         msgerror := cod_app;
+         open cu_valida_aceptacion_tyc_hd(pty_tipo_id,pty_num_id);
+         fetch cu_valida_aceptacion_tyc_hd into app_acepto;
+         close cu_valida_aceptacion_tyc_hd;
+
+         cod_app_doc:='OVU-APPMP-WSP';
+         cod_app:=app_acepto;
       else
+         cod_app_doc:=pty_cod_app;
          cod_app:=pty_cod_app;
       end if;
 
-        -- Obtiene la informació de la aceptación de TyC y HD 
+        -- Obtiene la informació de la version del documentos de TyC y HD mas reciente
          open registros for with 
          -- Versión vigente de TyC
           tyc_vigente as (
@@ -182,7 +219,7 @@ create or replace package body psgen_sndaceptadoctyc_hd as
                                   select max(id)
                                     from adm_version_documentos
                                    where tipo_documento = 'Términos y Condiciones'
-                                     and codigo_app = cod_app
+                                     and codigo_app = cod_app_doc
                                )
                             ),
          -- Última aceptación TyC
@@ -209,7 +246,7 @@ create or replace package body psgen_sndaceptadoctyc_hd as
                                   select max(id)
                                     from adm_version_documentos
                                    where tipo_documento = 'Política de Tratamiento de Datos'
-                                     and codigo_app = cod_app
+                                     and codigo_app = cod_app_doc
                                )
                             ),
          -- Última aceptación HD
