@@ -20,7 +20,7 @@ WHERE cod_agrupador IN (
 
 SELECT *--top 5 *
 FROM saludmp.DIR_AGRUPADORES
-WHERE tipoAgrupa='AMB' AND UPPER(descripcion) LIKE UPPER('%Electroencefalograma computarizado%')
+WHERE tipoAgrupa='AMB' AND UPPER(descripcion) LIKE UPPER('%Fenilalanina Cualitativa%')
 ORDER BY descripcion
 
 -- Rta 1//
@@ -80,9 +80,7 @@ WHERE conve IN (
 
 
 -- solución del caso
-UPDATE convenios
-SET fecha_terminacion = CAST('2025-10-01 00:00:00.000' AS DATETIME)
-WHERE conve IN (2150);
--- WHERE conve IN (907, 5587);
--- WHERE conve IN (1237, 1239, 5415);
+UPDATE CONVE_PRESTACIONES SET fecha_hasta = CAST('2025-10-01 00:00:00.000' AS DATETIME) WHERE prestac='306001' and conve in (1237, 1239, 5415);
+UPDATE CONVE_PRESTACIONES SET fecha_hasta = CAST('2025-10-01 00:00:00.000' AS DATETIME) WHERE prestac='903202' and conve in (907);
+UPDATE CONVE_PRESTACIONES SET fecha_hasta = CAST('2025-10-01 00:00:00.000' AS DATETIME) WHERE prestac='891402' and conve in (2150);
 

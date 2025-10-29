@@ -1,3 +1,8 @@
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
 /*
   Nombre del Stored Procedure: getPrestadoresDirectorio
   Autor: Jhon Medina
@@ -13,13 +18,13 @@ ALTER PROCEDURE [saludmp].[getPrestadoresDirectorio]
 	@codAfinidad VARCHAR(10) = NULL,
 	@codPrestador VARCHAR(15) = NULL,
 	@getPrestadores NVARCHAR(MAX) = NULL,
-	@pagina INT= 1,
+	-- @pagina INT= 1,
 	@coderror VARCHAR = '0' OUTPUT,
     @msgerror VARCHAR(500) = NULL OUTPUT
 AS
 
-DECLARE @registrosXpagina INT= 9
-DECLARE @offSet INT= (@pagina - 1) * @registrosXpagina
+-- DECLARE @registrosXpagina INT= 9
+-- DECLARE @offSet INT= (@pagina - 1) * @registrosXpagina
 
 BEGIN
 	
@@ -69,14 +74,14 @@ BEGIN
 		IF(@codCiudad IS NOT NULL AND @cartilla IS NOT NULL AND @codEspecialidad IS NOT NULL AND @codSubEspecialidad IS NOT NULL AND @codAfinidad IS NOT NULL)
 			BEGIN
 			-- RETURN 'aqui'
-				SELECT DISTINCT carti AS cartilla,prestad AS codPrestador,prestadores_tipo AS tipoPrestador, 
+				SELECT DISTINCT carti AS cartilla,RTRIM(cartilla_deno) AS cartilla_descripcion,prestad AS codPrestador,prestadores_tipo AS tipoPrestador, 
 					CASE prestadores_tipo 
 						WHEN 'I' THEN  
 							CASE
-								WHEN nombre_abre IS NOT NULL OR LEN(nombre_abre) = 0 THEN  nombre_abre
-								ELSE prestadores_ape_razon
+								WHEN nombre_abre IS NOT NULL OR LEN(nombre_abre) = 0 THEN  RTRIM(nombre_abre)
+								ELSE RTRIM(prestadores_ape_razon)
 							END
-						ELSE PRESTADOR
+						ELSE RTRIM(PRESTADOR)
 					END AS prestador,
 					nombre_abre AS descripcionPrestador,prestadores_ape_razon AS razonSocial, espe AS codEspecialidad, especialidades_exten_deno AS especialidad, codsubespecialidad AS codSubEspecialidad ,sub_especialidades_exten_deno AS subEspecialidad,codafinidad AS codAfinidad ,Nombre_Afinidad AS Afinidad, cod_ciudad AS codCiudad, ciudad, direccion_lugar_atencion AS direccion,lugar AS codDireccion,latitud, longitud, email_citas AS email,prestad_lugares_tele1 AS telefono1,ext1 AS extension1,  prestad_lugares_tele2 AS telefono2, ext2 AS extension2,tele_nacional AS lineaNacional, prestad_lugares_celu1 AS celular1, prestad_lugares_celu2 AS celular2, telcelu_wp AS celularWP
 				FROM Visor_directorios_5 v5
@@ -96,14 +101,14 @@ BEGIN
 		--obtener los prestadores teniendo en cuenta los filtros Ok
 		IF(@codCiudad IS NOT NULL AND @cartilla IS NOT NULL AND @codPrestador IS NOT NULL)
 			BEGIN
-				SELECT DISTINCT carti AS cartilla,prestad AS codPrestador,prestadores_tipo AS tipoPrestador, 
+				SELECT DISTINCT carti AS cartilla,RTRIM(cartilla_deno) AS cartilla_descripcion,prestad AS codPrestador,prestadores_tipo AS tipoPrestador, 
 					CASE prestadores_tipo 
 						WHEN 'I' THEN  
 							CASE
-								WHEN nombre_abre IS NOT NULL OR LEN(nombre_abre) = 0 THEN  nombre_abre
-								ELSE prestadores_ape_razon
+								WHEN nombre_abre IS NOT NULL OR LEN(nombre_abre) = 0 THEN  RTRIM(nombre_abre)
+								ELSE RTRIM(prestadores_ape_razon)
 							END
-						ELSE PRESTADOR
+						ELSE RTRIM(PRESTADOR)
 					END AS prestador,
 					nombre_abre AS descripcionPrestador,prestadores_ape_razon AS razonSocial, espe AS codEspecialidad, especialidades_exten_deno AS especialidad, codsubespecialidad AS codSubEspecialidad ,sub_especialidades_exten_deno AS subEspecialidad,codafinidad AS codAfinidad ,Nombre_Afinidad AS Afinidad, cod_ciudad AS codCiudad, ciudad, direccion_lugar_atencion AS direccion,lugar AS codDireccion,latitud, longitud, email_citas AS email,prestad_lugares_tele1 AS telefono1,ext1 AS extension1,  prestad_lugares_tele2 AS telefono2, ext2 AS extension2,tele_nacional AS lineaNacional, prestad_lugares_celu1 AS celular1, prestad_lugares_celu2 AS celular2, telcelu_wp AS celularWP
 				FROM Visor_directorios_5 v5
@@ -124,10 +129,10 @@ BEGIN
 					CASE prestadores_tipo 
 						WHEN 'I' THEN  
 							CASE
-								WHEN nombre_abre IS NOT NULL OR LEN(nombre_abre) = 0 THEN  nombre_abre
-								ELSE prestadores_ape_razon
+								WHEN nombre_abre IS NOT NULL OR LEN(nombre_abre) = 0 THEN  RTRIM(nombre_abre)
+								ELSE RTRIM(prestadores_ape_razon)
 							END
-						ELSE PRESTADOR
+						ELSE RTRIM(PRESTADOR)
 					END AS prestador--, prestadores_tipo AS tipoPrestador,nombre_abre AS descripcionPrestador, prestadores_ape_razon AS razonSocial
 				FROM Visor_directorios_5
 				WHERE PRESTADOR COLLATE Latin1_General_CI_AI LIKE '%' +@getPrestadores + '%' COLLATE Latin1_General_CI_AI
@@ -143,14 +148,14 @@ BEGIN
 		--obtener los prestadores teniendo en cuenta los filtros Ok
 		IF(@codCiudad IS NOT NULL AND @codPrestador IS NOT NULL)
 			BEGIN  
-				SELECT DISTINCT carti AS cartilla,prestad AS codPrestador,prestadores_tipo AS tipoPrestador, 
+				SELECT DISTINCT carti AS cartilla,RTRIM(cartilla_deno) AS cartilla_descripcion,prestad AS codPrestador,prestadores_tipo AS tipoPrestador, 
 					CASE prestadores_tipo 
 						WHEN 'I' THEN  
 							CASE
-								WHEN nombre_abre IS NOT NULL OR LEN(nombre_abre) = 0 THEN  nombre_abre
-								ELSE prestadores_ape_razon
+								WHEN nombre_abre IS NOT NULL OR LEN(nombre_abre) = 0 THEN  RTRIM(nombre_abre)
+								ELSE RTRIM(prestadores_ape_razon)
 							END
-						ELSE PRESTADOR
+						ELSE RTRIM(PRESTADOR)
 					END AS prestador,
 					nombre_abre AS descripcionPrestador,prestadores_ape_razon AS razonSocial, espe AS codEspecialidad, especialidades_exten_deno AS especialidad, codsubespecialidad AS codSubEspecialidad ,sub_especialidades_exten_deno AS subEspecialidad,codafinidad AS codAfinidad ,Nombre_Afinidad AS Afinidad, cod_ciudad AS codCiudad, ciudad, direccion_lugar_atencion AS direccion,lugar AS codDireccion,latitud, longitud, email_citas AS email,prestad_lugares_tele1 AS telefono1,ext1 AS extension1,  prestad_lugares_tele2 AS telefono2, ext2 AS extension2,tele_nacional AS lineaNacional, prestad_lugares_celu1 AS celular1, prestad_lugares_celu2 AS celular2, telcelu_wp AS celularWP
 				FROM Visor_directorios_5 v5
@@ -165,16 +170,35 @@ BEGIN
 			END;
 		
 		--obtener los prestadores teniendo en cuenta los filtros Ok
+		IF(@codCiudad IS NOT NULL AND @cartilla IS NOT NULL)
+			BEGIN
+				SELECT 
+				CASE UPPER(prestadores_tipo) 
+				WHEN 'I' THEN
+					CASE 
+						WHEN nombre_abre IS NOT NULL THEN RTRIM(PRESTADOR)
+					END
+				ELSE
+					RTRIM(PRESTADOR)
+				END	AS prestador, 
+				prestad AS codPrestador, 
+				prestadores_tipo AS tipoPrestador
+				FROM Visor_directorios_3
+				WHERE carti=@cartilla AND cod_ciudad=@codCiudad
+				ORDER BY prestador
+			END
+
+		--obtener los prestadores teniendo en cuenta los filtros Ok
 		IF(@codCiudad IS NULL AND @codPrestador IS NOT NULL)
 			BEGIN 
-				SELECT DISTINCT carti AS cartilla,prestad AS codPrestador,prestadores_tipo AS tipoPrestador, 
+				SELECT DISTINCT carti AS cartilla,RTRIM(cartilla_deno) AS cartilla_descripcion,prestad AS codPrestador,prestadores_tipo AS tipoPrestador, 
 					CASE prestadores_tipo 
 						WHEN 'I' THEN  
 							CASE
-								WHEN nombre_abre IS NOT NULL OR LEN(nombre_abre) = 0 THEN  nombre_abre
-								ELSE prestadores_ape_razon
+								WHEN nombre_abre IS NOT NULL OR LEN(nombre_abre) = 0 THEN  RTRIM(nombre_abre)
+								ELSE RTRIM(prestadores_ape_razon)
 							END
-						ELSE PRESTADOR
+						ELSE RTRIM(PRESTADOR)
 					END AS prestador,
 					nombre_abre AS descripcionPrestador,prestadores_ape_razon AS razonSocial, espe AS codEspecialidad, especialidades_exten_deno AS especialidad, codsubespecialidad AS codSubEspecialidad ,sub_especialidades_exten_deno AS subEspecialidad,codafinidad AS codAfinidad ,Nombre_Afinidad AS Afinidad, cod_ciudad AS codCiudad, ciudad, direccion_lugar_atencion AS direccion,lugar AS codDireccion,latitud, longitud, email_citas AS email,prestad_lugares_tele1 AS telefono1,ext1 AS extension1,  prestad_lugares_tele2 AS telefono2, ext2 AS extension2,tele_nacional AS lineaNacional, prestad_lugares_celu1 AS celular1, prestad_lugares_celu2 AS celular2, telcelu_wp AS celularWP
 				FROM Visor_directorios_5 v5
@@ -182,8 +206,8 @@ BEGIN
 				-- AND V5.cod_ciudad = @codCiudad
 				AND V5.carti NOT IN ('011', '002', '012', '013')
 				ORDER BY ciudad,lugar,espe,codsubespecialidad,codafinidad
-				OFFSET @offSet ROWS
-				FETCH NEXT @registrosXpagina ROWS ONLY
+				-- OFFSET @offSet ROWS
+				-- FETCH NEXT @registrosXpagina ROWS ONLY
 
 				SET @coderror = 0
 				SET @msgerror ='Ok'

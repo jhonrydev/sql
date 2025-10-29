@@ -114,20 +114,20 @@ EXEC sp_addextendedproperty
 
 
 
-CREATE TABLE saludmp.PRESTADOR_FAVORITO (
-    tipo_documento VARCHAR(3),
-    numero_identificacion VARCHAR(30) NOT NULL,
-    codigo_plan VARCHAR(20) NOT NULL,
-    nombre_plan VARCHAR(180) NOT NULL,
-    codigo_prestador VARCHAR(10) NOT NULL,
-    prestador VARCHAR(150),
-    direccion_prestador VARCHAR(50) NOT NULL,
-    codigo_ciudad VARCHAR(10) NOT NULL,
-    cartilla VARCHAR(5) NOT NULL,
-    marcacion VARCHAR(1),
-    fecha_creacion DATETIME,
-    fecha_actualizacion DATETIME
-);
+-- CREATE TABLE saludmp.PRESTADOR_FAVORITO (
+--     tipo_documento VARCHAR(3),
+--     numero_identificacion VARCHAR(30) NOT NULL,
+--     codigo_plan VARCHAR(20) NOT NULL,
+--     nombre_plan VARCHAR(180) NOT NULL,
+--     codigo_prestador VARCHAR(10) NOT NULL,
+--     prestador VARCHAR(150),
+--     direccion_prestador VARCHAR(50) NOT NULL,
+--     codigo_ciudad VARCHAR(10) NOT NULL,
+--     cartilla VARCHAR(5) NOT NULL,
+--     marcacion VARCHAR(1),
+--     fecha_creacion DATETIME,
+--     fecha_actualizacion DATETIME
+-- );
 
 
 -- Datos de pruebas
