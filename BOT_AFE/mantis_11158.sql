@@ -367,7 +367,7 @@ DESCRIBE API_AFEMP_BITACORASOLICITUD;
    end pr_cambio_motivo_devolucion;
 --=====================================================================================================
    procedure pr_cambio_motivo_devolucion (
-      prm_usuario       in varchar2,
+      prm_usuario_red       in varchar2,
       prm_solicitud_afe in varchar2,
       prm_motivo_actual in varchar2,
       prm_motivo_nuevo  in varchar2,
@@ -449,13 +449,13 @@ DESCRIBE API_AFEMP_BITACORASOLICITUD;
 
       coderror := 0;
 
-      if ( prm_usuario is null or prm_usuario = '' ) then
-         msgerror := 'El campo (prm_usuario) es requerido';
+      if ( prm_usuario_red is null or prm_usuario_red = '' ) then
+         msgerror := 'El campo (prm_usuario_red) es requerido';
          coderror := 5;
          return;
       else
-         -- prm_usuario:=upper(trim(prm_usuario));
-         open cu_role_user_profile_macro(prm_usuario);
+         v_usuario := upper(prm_usuario_red);
+         open cu_role_user_profile_macro(v_usuario);
          loop
             fetch cu_role_user_profile_macro into v_roles_usuario_macro;
             exit when cu_role_user_profile_macro%notfound;
@@ -467,7 +467,7 @@ DESCRIBE API_AFEMP_BITACORASOLICITUD;
          close cu_role_user_profile_macro;
 
          if (v_role_usuario_macro <> 1) then
-            msgerror := 'El usuario ('|| prm_usuario||') no tiene permisos para ejecutar esta función';
+            msgerror := 'El usuario ('|| prm_usuario_red||') no tiene permisos para ejecutar esta función';
             coderror := 5;
             return;
          end if;
@@ -526,6 +526,7 @@ DESCRIBE API_AFEMP_BITACORASOLICITUD;
          fetch cu_estados_devolucion into v_info_devolucion_nuevo;
          if ( cu_estados_devolucion%notfound ) then
           v_info_devolucion_nuevo.codigo := null;
+          v_info_devolucion_nuevo.descripcion := null;
          end if;
          close cu_estados_devolucion;
 
@@ -548,8 +549,8 @@ DESCRIBE API_AFEMP_BITACORASOLICITUD;
          fetch cu_devolucion_a_modificar into v_info_devolucion;
          close cu_devolucion_a_modificar;
 
-         if ( v_info_devolucion.id_step1 <> prm_solicitud_afe ) then
-            msgerror := 'No se encontró la orden AFE '||prm_solicitud_afe;
+         if ( v_info_devolucion.id_step1 is null ) then
+            msgerror := 'No se encontró la solicitud ('||prm_solicitud_afe||') registrada para devolución';
             coderror := 5;
             return;
          elsif( v_info_devolucion.codigo_devolucion <> v_motivo_actual_id ) then
@@ -593,7 +594,7 @@ DESCRIBE API_AFEMP_BITACORASOLICITUD;
                                                   13,
                                                   v_motivo_devolucion_actual_des, 
                                                   v_motivo_devolucion_nuevo_desc,
-                                                  prm_usuario,
+                                                  v_usuario,
                                                   'Cambio realizado desde la Macro',
                                                   sysdate
                                                    );
@@ -605,7 +606,7 @@ DESCRIBE API_AFEMP_BITACORASOLICITUD;
                                                   v_motivo_devolucion_actual_id,
                                                   v_motivo_devolucion_nuevo_id, 
                                                   sysdate,
-                                                  prm_usuario );
+                                                  v_usuario );
 
          insert into gen_bitacora_cambio values ( 
                                                    seq_gen_bitacora_cambio.nextval,
@@ -614,7 +615,7 @@ DESCRIBE API_AFEMP_BITACORASOLICITUD;
                                                   v_info_devolucion_observacion,
                                                   prm_observacion, 
                                                   sysdate,
-                                                  prm_usuario );
+                                                  v_usuario );
 
          insert into gen_bitacora_cambio values ( 
                                                    seq_gen_bitacora_cambio.nextval,
@@ -623,7 +624,7 @@ DESCRIBE API_AFEMP_BITACORASOLICITUD;
                                                   null,
                                                   prm_solicitud_afe, 
                                                   sysdate,
-                                                  prm_usuario );
+                                                  v_usuario );
 
          insert into gen_bitacora_cambio values ( 
                                                    seq_gen_bitacora_cambio.nextval,
@@ -632,7 +633,7 @@ DESCRIBE API_AFEMP_BITACORASOLICITUD;
                                                   null,
                                                   13, 
                                                   sysdate,
-                                                  prm_usuario );
+                                                  v_usuario );
 
          insert into gen_bitacora_cambio values ( 
                                                    seq_gen_bitacora_cambio.nextval,
@@ -641,7 +642,7 @@ DESCRIBE API_AFEMP_BITACORASOLICITUD;
                                                   null,
                                                   v_motivo_devolucion_actual_id, 
                                                   sysdate,
-                                                  prm_usuario );
+                                                  v_usuario );
 
          insert into gen_bitacora_cambio values ( 
                                                    seq_gen_bitacora_cambio.nextval,
@@ -650,16 +651,16 @@ DESCRIBE API_AFEMP_BITACORASOLICITUD;
                                                   null,
                                                   v_motivo_devolucion_nuevo_id, 
                                                   sysdate,
-                                                  prm_usuario );
+                                                  v_usuario );
 
          insert into gen_bitacora_cambio values ( 
                                                    seq_gen_bitacora_cambio.nextval,
                                                    (SELECT max(COD_BITACORA_SOLICITUD) from API_AFEMP_BITACORASOLICITUD),
                                                   22,
                                                   null,
-                                                  prm_usuario, 
+                                                  v_usuario, 
                                                   sysdate,
-                                                  prm_usuario );
+                                                  v_usuario );
 
          insert into gen_bitacora_cambio values ( 
                                                    seq_gen_bitacora_cambio.nextval,
@@ -668,7 +669,7 @@ DESCRIBE API_AFEMP_BITACORASOLICITUD;
                                                   null,
                                                   'Cambio realizado por Macro', 
                                                   sysdate,
-                                                  prm_usuario );
+                                                  v_usuario );
 
          commit;
       end if;
@@ -685,8 +686,8 @@ DESCRIBE API_AFEMP_BITACORASOLICITUD;
       coderror := 0;
    end pr_cambio_motivo_devolucion;
 --=====================================================================================================
-
 -- psgen_snpinsumobotafe.pr_ajusteestadosolicafe
+-- psgen_snpinsumobotafe.pr_cambio_motivo_devolucion
 /*
 JIMB8316
 6819
@@ -695,8 +696,23 @@ JIMB8316
 Nueva Observación
 */
 
-SELECT * FROM api_afemp_devolucion where id_step1=6819;
-SELECT * FROM api_afemp_bitacorasolicitud where id=6819;
+SELECT * FROM api_afemp_devolucion where id_step1=68190;
+SELECT * FROM api_afemp_bitacorasolicitud where id=6819 order by fecha_modificacion desc;
 SELECT * FROM gen_tipo_cambio order by cod_tipo_cambio desc;
 SELECT * FROM gen_bitacora_cambio order by cod_biracora_cambio desc;
 
+-- CTE
+with grupo_servicios as (
+select count(*) servicio, servicio_id
+from tsgen_parametros_entrada
+group by servicio_id
+having count(*) > 3
+order by servicio
+),
+servicios as (
+select servicio_id,nombre_clave 
+from tsgen_servicio
+)
+
+select s.nombre_clave 
+from grupo_servicios gs inner join servicios s on gs.servicio_id=s.servicio_id;
